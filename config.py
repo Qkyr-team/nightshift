@@ -25,6 +25,6 @@ BANNER_PATH = os.path.join(BASE_DIR, "assets", "banner.jpg")
 # ---------- веб-панель управления ----------
 PANEL_PASSWORD = os.getenv("PANEL_PASSWORD", "").strip()   # без пароля панель не запускается
 PANEL_HOST = os.getenv("PANEL_HOST", "127.0.0.1").strip()  # 127.0.0.1 = доступна только на этом компьютере
-PANEL_PORT = int(os.getenv("PANEL_PORT", "8000"))
+PANEL_PORT = int(os.getenv("PORT", os.getenv("PANEL_PORT", "8000")))
 PANEL_SECRET = os.getenv("PANEL_SECRET", "").strip()
 MEDIA_DIR = os.path.join(BASE_DIR, "media")                # кэш фото для панели
