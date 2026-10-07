@@ -1,0 +1,23 @@
+{% from "_macros.html" import csrf %}
+<!doctype html>
+<html lang="ru"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход · {{ shop_name }}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head><body>
+<div class="login"><div class="box">
+  <div class="moon">🌙</div>
+  <h1>{{ shop_name }}</h1>
+  <p>Панель управления магазином</p>
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
+  {% endwith %}
+  <form class="card" method="post">
+    {{ csrf() }}
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+    <div class="field"><label>Пароль</label><input type="password" name="password" autofocus autocomplete="current-password"></div>
+    <button class="btn primary block" type="submit">Войти</button>
+  </form>
+</div></div>
+</body></html>

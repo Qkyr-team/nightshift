@@ -1,0 +1,9 @@
+{% macro csrf() %}<input type="hidden" name="_csrf" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro badge(status) %}<span class="badge {{ status_class(status) }}">{{ status }}</span>{% endmacro %}
+
+{% macro initials(name) %}{{ (name or '?')[:1]|upper }}{% endmacro %}
+
+{% macro items_summary(items) -%}
+  {%- if items -%}{{ items[0]['name'] }}{% if items|length > 1 %} <span class="muted">+{{ items|length - 1 }}</span>{% endif %}{%- else -%}—{%- endif -%}
+{%- endmacro %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Заявки под заказ{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Заявки под заказ</h1></div>
+<section class="card">
+  {% if rows %}
+  <table>
+    <thead><tr><th>№</th><th>Клиент</th><th>Что ищет</th><th>Бюджет</th><th>Статус</th><th>Дата</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr class="link" onclick="location='{{ url_for('custom_detail', rid=r['id']) }}'">
+        <td class="nowrap"><b>{{ r['id']|ono }}</b></td>
+        <td>{{ r['first_name'] or r['username'] or '—' }}</td>
+        <td style="max-width:340px">{{ (r['description'] or '')[:90] }}{{ '…' if (r['description'] or '')|length > 90 }}{% if r['photo_id'] %} 📷{% endif %}</td>
+        <td class="nowrap">{{ r['budget'] or '—' }}</td>
+        <td>{{ badge(r['status']) }}</td>
+        <td class="muted nowrap">{{ r['created_at']|dt }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<div class="empty">Заявок пока нет.</div>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Сообщения{% endblock %}
+{% block content %}
+{% from "_macros.html" import csrf %}
+<div class="chat">
+  <div class="convs">
+    {% for c in convs %}
+      <a class="conv {{ 'active' if c['user_id'] == uid }} {{ 'unread' if c['unread'] }}" href="{{ url_for('thread', uid=c['user_id']) }}">
+        <div class="avatar">{{ (c['first_name'] or c['username'] or '?')[:1]|upper }}</div>
+        <div class="info">
+          <div class="top"><span class="nm">{{ c['first_name'] or c['username'] or c['user_id'] }}</span><span class="muted small nowrap">{{ c['last_at']|dt }}</span></div>
+          <div class="last">{{ '↩ ' if c['last_dir'] == 'out' }}{{ c['last_text'] or ('📷 Фото' if c['last_photo'] else '') }}</div>
+        </div>
+      </a>
+    {% else %}
+      <div class="empty">Сообщений пока нет.<br><span class="small">Когда клиент напишет боту, диалог появится здесь.</span></div>
+    {% endfor %}
+  </div>
+
+  <div class="pane">
+    {% if uid %}
+      <div class="pane-head">
+        <div>
+          <div class="who">{{ (user['first_name'] if user else None) or uid }}</div>
+          <div class="muted small">
+            {% if user and user['username'] %}@{{ user['username'] }} · {% endif %}id {{ uid }}
+            {% if orders %} · заказы:
+              {% for o in orders %}<a href="{{ url_for('order', oid=o['id']) }}" style="color:var(--accent)">{{ o['id']|ono }}</a>{{ ', ' if not loop.last }}{% endfor %}
+            {% endif %}
+          </div>
+        </div>
+        <a class="btn small" target="_blank" href="{{ contact_url(uid, user['username'] if user else None) }}">Открыть в Telegram ↗</a>
+      </div>
+
+      <div class="msgs" id="msgs">
+        {% for m in thread %}
+          <div class="bubble {{ m['direction'] }}">
+            {% if m['photo_id'] %}<a href="{{ url_for('photo', file_id=m['photo_id']) }}" target="_blank"><img src="{{ url_for('photo', file_id=m['photo_id']) }}" alt=""></a>{% endif %}
+            {{ m['text'] or '' }}
+            <span class="t">{{ m['created_at']|dt }}</span>
+          </div>
+        {% else %}
+          <div class="empty">Переписки ещё не было. Напиши первым 👇</div>
+        {% endfor %}
+      </div>
+
+      <form class="composer" method="post" action="{{ url_for('send') }}" enctype="multipart/form-data">
+        {{ csrf() }}
+        <input type="hidden" name="user_id" value="{{ uid }}">
+        <label class="attach" title="Прикрепить фото">📎<input type="file" name="photo" accept="image/*"></label>
+        <textarea name="text" data-submit placeholder="Ответ клиенту…  (⌘+Enter — отправить)"></textarea>
+        <button class="btn primary" type="submit" style="height:44px">Отправить</button>
+      </form>
+    {% else %}
+      <div class="empty" style="margin:auto"><div style="font-size:42px">💬</div>Выбери диалог слева</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

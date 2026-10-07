@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, items_summary %}
+{% block title %}Заказы{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Заказы</h1></div>
+<div class="tabs">
+  {% for key, label in tabs %}
+    <a class="tab {{ 'active' if key == flt }}" href="{{ url_for('orders', f=key) }}">{{ label }}<span class="n">{{ counts[key] }}</span></a>
+  {% endfor %}
+</div>
+<section class="card">
+  {% if rows %}
+  <table>
+    <thead><tr><th>№</th><th>Клиент</th><th>Состав</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead>
+    <tbody>
+    {% for r in rows %}{% set o = r.o %}
+      <tr class="link" onclick="location='{{ url_for('order', oid=o['id']) }}'">
+        <td class="nowrap"><b>{{ o['id']|ono }}</b></td>
+        <td>{{ o['first_name'] or '—' }}{% if o['username'] %}<div class="muted small">@{{ o['username'] }}</div>{% endif %}</td>
+        <td>{{ items_summary(r['items']) }}</td>
+        <td class="nowrap">{{ o['total']|money }}</td>
+        <td>{{ badge(o['status']) }}</td>
+        <td class="muted nowrap">{{ o['created_at']|dt }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<div class="empty">Здесь пока пусто.</div>{% endif %}
+</section>
+{% if pages > 1 %}
+<div class="pager">
+  {% if page > 1 %}<a class="btn small" href="{{ url_for('orders', f=flt, page=page-1) }}">←</a>{% endif %}
+  <span>{{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a class="btn small" href="{{ url_for('orders', f=flt, page=page+1) }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

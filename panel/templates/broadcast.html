@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Рассылка{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Рассылка</h1><span class="muted">Получателей: {{ n }}</span></div>
+<form class="card" method="post" enctype="multipart/form-data" style="max-width:640px"
+      data-confirm="Отправить сообщение всем клиентам ({{ n }})? Это нельзя отменить.">
+  {{ csrf() }}
+  <div class="field"><label>Текст</label>
+    <textarea name="text" style="min-height:140px" placeholder="Новый дроп уже в каталоге 🖤"></textarea></div>
+  <div class="field"><label>Фото (необязательно)</label><input type="file" name="photo" accept="image/*"></div>
+  <button class="btn primary" type="submit">🚀 Отправить всем</button>
+  <div class="hint" style="margin-top:12px">Страница будет «думать», пока идёт отправка — это нормально (≈ 1 секунда на 20 клиентов).</div>
+</form>
+{% endblock %}

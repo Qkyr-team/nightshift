@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, csrf %}
+{% block title %}Заказ {{ o['id']|ono }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><a class="muted small" href="{{ url_for('orders') }}">← Заказы</a>
+    <h1 style="margin-top:4px">Заказ {{ o['id']|ono }} &nbsp;{{ badge(o['status']) }}</h1></div>
+  <div class="actions">
+    <a class="btn" target="_blank" href="{{ contact_url(o['user_id'], o['username']) }}">Открыть в Telegram ↗</a>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="stack">
+    <section class="card items">
+      <h2>Состав заказа</h2>
+      <table>
+        <tbody>
+        {% for i in items %}
+          <tr><td><b>{{ i['name'] }}</b><div class="muted small">{{ i['size'] }} · {{ i['color'] }}</div></td>
+              <td class="nowrap">× {{ i['qty'] }}</td>
+              <td class="right nowrap">{{ (i['price'] * i['qty'])|money }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <div class="total"><span>Итого</span><span>{{ o['total']|money }}</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Клиент</h2>
+      <dl class="kv">
+        <dt>Имя</dt><dd>{{ o['first_name'] or '—' }}</dd>
+        <dt>Telegram</dt><dd>{% if o['username'] %}@{{ o['username'] }}{% else %}<span class="muted">нет @username</span>{% endif %} <span class="muted small">· id {{ o['user_id'] }}</span></dd>
+        <dt>Контакт</dt><dd><b>{{ o['contact'] }}</b></dd>
+        {% if o['comment'] %}<dt>Комментарий</dt><dd>{{ o['comment'] }}</dd>{% endif %}
+        <dt>Оформлен</dt><dd>{{ o['created_at']|dt }}</dd>
+      </dl>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      <h2>Статус</h2>
+      <form method="post" action="{{ url_for('order_status', oid=o['id']) }}">
+        {{ csrf() }}
+        <div class="status-form">
+          {% for name, emoji in order_statuses %}
+            <button class="btn small {{ 'cur' if name == o['status'] }}" name="status" value="{{ name }}" {{ 'disabled' if name == o['status'] }}>{{ emoji }} {{ name }}</button>
+          {% endfor %}
+        </div>
+        <div style="margin-top:14px"><label class="check"><input type="checkbox" name="notify" value="1" checked> Уведомить клиента в Telegram</label></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Написать клиенту <a class="muted small" href="{{ url_for('thread', uid=o['user_id']) }}">вся переписка →</a></h2>
+      {% for m in thread[-3:] %}
+        <div class="mini-msg"><div class="who">{{ 'Клиент' if m['direction'] == 'in' else 'Вы' }} · {{ m['created_at']|dt }}</div>
+          {{ m['text'] or ('📷 Фото' if m['photo_id'] else '') }}</div>
+      {% endfor %}
+      <form method="post" action="{{ url_for('send') }}" enctype="multipart/form-data" style="margin-top:12px">
+        {{ csrf() }}
+        <input type="hidden" name="user_id" value="{{ o['user_id'] }}">
+        <input type="hidden" name="next" value="{{ url_for('order', oid=o['id']) }}">
+        <div class="field"><textarea name="text" data-submit placeholder="Например: заказ подтверждён, когда удобно созвониться?"></textarea></div>
+        <button class="btn primary" type="submit">Отправить</button>
+        <span class="hint">⌘+Enter — быстрая отправка</span>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

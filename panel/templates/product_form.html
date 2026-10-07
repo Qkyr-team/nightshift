@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% set editing = p.get('id') %}
+{% block title %}{{ 'Редактирование' if editing else 'Новый товар' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><a class="muted small" href="{{ url_for('products') }}">← Товары</a>
+    <h1 style="margin-top:4px">{{ 'Редактирование товара' if editing else 'Новый товар' }}</h1></div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {{ csrf() }}
+  <div class="cols" style="grid-template-columns: 1.6fr 1fr">
+    <section class="card">
+      <div class="field"><label>Название</label>
+        <input type="text" name="name" value="{{ p.get('name', '') }}" placeholder="NIGHTSHIFT Oversized Hoodie" required></div>
+      <div class="field"><label>Описание</label>
+        <textarea name="description" placeholder="Материал, посадка, особенности…">{{ p.get('description', '') }}</textarea></div>
+      <div class="row2">
+        <div class="field"><label>Цена</label>
+          <input type="text" name="price" inputmode="decimal" value="{{ p.get('price', '') }}" placeholder="49.90" required></div>
+        <div class="field"><label>Категория</label>
+          <input type="text" name="category" list="cats" value="{{ p.get('category', '') }}" placeholder="Худи" required>
+          <datalist id="cats">{% for c in cats %}<option value="{{ c }}">{% endfor %}</datalist></div>
+      </div>
+      <div class="field"><label>Размеры</label>
+        <input type="text" id="sizes" name="sizes" value="{{ p.get('sizes', '') }}" placeholder="S,M,L,XL">
+        <div class="chips" data-chips="sizes">
+          {% for s in ['XS','S','M','L','XL','XXL','One size'] %}<button type="button" class="chip" data-v="{{ s }}">{{ s }}</button>{% endfor %}
+        </div>
+        <div class="hint">Нажимай на размеры или пиши через запятую. Пусто — размер выбирать не нужно.</div></div>
+      <div class="field"><label>Цвета</label>
+        <input type="text" id="colors" name="colors" value="{{ p.get('colors', '') }}" placeholder="Чёрный,Серый">
+        <div class="chips" data-chips="colors">
+          {% for c in ['Чёрный','Белый','Серый','Бежевый','Синий','Зелёный'] %}<button type="button" class="chip" data-v="{{ c }}">{{ c }}</button>{% endfor %}
+        </div></div>
+      <label class="check"><input type="checkbox" name="active" value="1" {{ 'checked' if p.get('active', 1) }}> Показывать в каталоге бота</label>
+    </section>
+
+    <div class="stack">
+      <section class="card">
+        <label>Фото</label>
+        <label class="drop {{ 'has' if p.get('photo_id') }}" id="drop" for="photo-input"
+               {% if p.get('photo_id') %}style="background-image:url('{{ url_for('photo', file_id=p['photo_id']) }}')"{% endif %}>
+          <span class="big">📷</span><span>Нажми, чтобы выбрать фото<br><span class="small">JPG, PNG, WEBP</span></span>
+          <input id="photo-input" type="file" name="photo" accept="image/*">
+        </label>
+        {% if editing and p.get('photo_id') %}
+          <div style="margin-top:12px"><label class="check"><input type="checkbox" name="remove_photo" value="1"> Убрать фото</label></div>
+        {% endif %}
+        <div class="hint">Лучше вертикальное фото. Оно появится у клиентов в боте.</div>
+      </section>
+      <button class="btn primary block" type="submit" style="padding:12px">{{ 'Сохранить' if editing else 'Добавить в каталог' }}</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

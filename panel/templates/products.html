@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Товары{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Товары <span class="muted" style="font-weight:400;font-size:16px">{{ total }}</span></h1>
+  <div class="actions"><a class="btn primary" href="{{ url_for('product_new') }}">+ Добавить товар</a></div>
+</div>
+
+{% for cat, items in groups.items() %}
+  <div class="cat-title"><h2>{{ cat }}</h2><span class="muted small">{{ items|length }}</span></div>
+  <div class="grid">
+  {% for p in items %}
+    <div class="pcard {{ 'off' if not p['active'] }}">
+      <div class="img" {% if p['photo_id'] %}style="background-image:url('{{ url_for('photo', file_id=p['photo_id']) }}')"{% endif %}>
+        {% if not p['photo_id'] %}🌙{% endif %}
+        {% if not p['active'] %}<span class="badge gray">Скрыт</span>{% endif %}
+      </div>
+      <div class="body">
+        <div class="name">{{ p['name'] }}</div>
+        <div class="price">{{ p['price']|money }}</div>
+        <div class="muted small">{{ split_list(p['sizes'])|join(' · ') or 'без размеров' }}</div>
+        <div class="acts">
+          <a class="btn small" href="{{ url_for('product_edit', pid=p['id']) }}">Изменить</a>
+          <form method="post" action="{{ url_for('product_toggle', pid=p['id']) }}">{{ csrf() }}
+            <button class="btn small" type="submit">{{ 'Скрыть' if p['active'] else 'Показать' }}</button></form>
+          <form method="post" action="{{ url_for('product_delete', pid=p['id']) }}" data-confirm="Удалить «{{ p['name'] }}» навсегда?">{{ csrf() }}
+            <button class="btn small danger" type="submit">🗑</button></form>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+{% else %}
+  <div class="card empty">
+    <div style="font-size:40px">👕</div>
+    <p>В каталоге пока пусто.</p>
+    <a class="btn primary" href="{{ url_for('product_new') }}">+ Добавить первый товар</a>
+  </div>
+{% endfor %}
+{% endblock %}

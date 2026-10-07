@@ -1,0 +1,8 @@
+aiogram>=3.7,<4
+python-dotenv>=1.0
+tzdata
+Flask>=3.0
+requests>=2.31
+Pillow>=10.0
+# Необязательно: чтобы панель принимала фото HEIC с iPhone
+# pillow-heif

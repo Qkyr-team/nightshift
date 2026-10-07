@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Ошибка{% endblock %}
+{% block content %}
+<div class="empty" style="padding-top:12vh">
+  <div style="font-size:48px">🌘</div>
+  <h1 style="margin:10px 0">{{ 'Не найдено' if code == 404 else 'Что-то пошло не так' }}</h1>
+  <p>{{ message }}</p>
+  <a class="btn" href="{{ url_for('dashboard') }}">← На главную</a>
+</div>
+{% endblock %}

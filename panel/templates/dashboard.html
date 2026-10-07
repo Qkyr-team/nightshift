@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, initials, items_summary %}
+{% block title %}Обзор{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Обзор</h1><span class="muted">{{ today }}</span></div>
+
+<div class="stats">
+  <a class="stat" href="{{ url_for('orders', f='new') }}"><div class="n {{ 'hot' if s.new_orders }}">{{ s.new_orders }}</div><div class="l">Новых заказов</div></a>
+  <a class="stat" href="{{ url_for('messages_index') }}"><div class="n {{ 'hot' if nav.unread }}">{{ nav.unread }}</div><div class="l">Диалогов без ответа</div></a>
+  <a class="stat" href="{{ url_for('custom_list') }}"><div class="n {{ 'hot' if s.new_custom }}">{{ s.new_custom }}</div><div class="l">Новых заявок</div></a>
+  <a class="stat" href="{{ url_for('products') }}"><div class="n">{{ s.products }}</div><div class="l">Товаров{% if s.hidden %} · скрыто {{ s.hidden }}{% endif %}</div></a>
+  <div class="stat"><div class="n">{{ s.users }}</div><div class="l">Клиентов</div></div>
+  <div class="stat"><div class="n">{{ s.revenue|money }}</div><div class="l">Сумма заказов · {{ s.orders }} шт.</div></div>
+</div>
+
+<div class="cols">
+  <section class="card">
+    <h2>Последние заказы <a class="muted small" href="{{ url_for('orders', f='all') }}">все →</a></h2>
+    {% if recent %}
+    <table>
+      <tbody>
+      {% for r in recent %}{% set o = r.o %}
+        <tr class="link" onclick="location='{{ url_for('order', oid=o['id']) }}'">
+          <td class="nowrap"><b>{{ o['id']|ono }}</b></td>
+          <td>{{ o['first_name'] or o['username'] or '—' }}<div class="muted small">{{ items_summary(r['items']) }}</div></td>
+          <td class="nowrap">{{ o['total']|money }}</td>
+          <td>{{ badge(o['status']) }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty">Заказов пока нет.</div>{% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Диалоги <a class="muted small" href="{{ url_for('messages_index') }}">все →</a></h2>
+    {% for c in convs %}
+      <a class="conv {{ 'unread' if c['unread'] }}" href="{{ url_for('thread', uid=c['user_id']) }}" style="padding-left:0;padding-right:0">
+        <div class="avatar">{{ (c['first_name'] or c['username'] or '?')[:1]|upper }}</div>
+        <div class="info"><div class="nm">{{ c['first_name'] or c['username'] or c['user_id'] }}</div>
+          <div class="last">{{ '↩ ' if c['last_dir'] == 'out' }}{{ c['last_text'] or ('📷 Фото' if c['last_photo'] else '') }}</div></div>
+      </a>
+    {% else %}<div class="empty">Сообщений пока нет.</div>{% endfor %}
+  </section>
+</div>
+{% endblock %}
